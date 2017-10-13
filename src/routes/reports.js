@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var connection = require('../database/connection');
 var moment = require('moment-timezone');
+var controller = require('../controller/reports');
 /* GET users listing. */
 router.get('/', (req, res, next) => {
 
@@ -30,11 +31,12 @@ router.get('/:id', (req, res, next) => {
 });
 
 router.post('/', (req, res, next) => {
-  let startDate = moment(req.body.startDate).format('YYYY-MM-DD');
-  let endDate = moment(req.body.endDate).format('YYYY-MM-DD');
-  let query = "insert into tcc.tb_reports values ("+req.body.age+","+ req.body.medic +","+ req.body.nausea +","+ req.body.dizziness +","+ req.body.skinMark +","+ req.body.diagnostic +","+ req.body.disease +","+ startDate +","+ endDate +","+ req.body.latitude +","+ req.body.longitude +");";
-  connection.connection.query(query, (err, results) => {
-    console.log(query);
+  controller.create(req.body)
+  .then((result)=>{
+    res.status(201).json(result);
+  })
+  .catch((err) => {
+    res.send(err)
   });
 });
 module.exports = router;
