@@ -35,13 +35,43 @@ function getReportAndParams(reportId) {
 }
 
 function reportDiagnostic(payload){
-    var tools = payload;
+    var parameters = payload.parameters[0];
+    var report = payload.report[0]
+    var rawPoints = 0;
+    let maxPoints = 0;
+    let symptomBonus = 0.30;
+    if (report.age <= 15){
+        for( var key in report) {
+            if (key !== 'id' && key !== 'age'){
+                if (report[key] === 1 && report[key] === 'vomit') {    
+                    rawPoints = rawPoints + (parameters[key] + (parameters[key] * symptomBonus));
+                } else if (report[key] === 1) {
+                    rawPoints = rawPoints + parameters[key]
+                }
+            }   
+        }
+    }
+    if (report.age > 15){
+        for (var key in report) {
+            if (key !== 'id' && key !== 'age') {
+                if(report[key] === 1 && (report[key] === 'musclePain' || report[key] === 'eyePain' || report[key] === 'nausea' || report[key] === 'jointPain')){
+                    rawPoints = rawPoints + (parameters[key] + (parameters[key] * symptomBonus));
+                } else if (report[key] === 1){
+                    rawPoints = rawPoints + parameters[key];
+                }
+            }
+        }
+    }
+    for( var key in parameters) {
+        if (key !== 'id' && key !== 'created_at' && key !== 'gender'){
+            maxPoints = maxPoints + parameters[key]
+        }
+    }
+    let resultPercentage = rawPoints / maxPoints;
+
 }
 exports.analisys = function(_reportId) {
     var payload = getReportAndParams(_reportId).then((result) => {
-        return result.json();
-    })
-    .then((resultJSON) => {
-        var diagnostic = reportDiagnostic(resultJSON);
+        var diagnostic = reportDiagnostic(result);
     })
 }
