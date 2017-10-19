@@ -6,10 +6,7 @@ var controller = require('../controller/results');
 router.get('/:reportId', function (req, res, next) {
     controller.analisys(req.params.reportId)
     .then((response) => {
-        return response.json();
-    })
-    .then((responseJSON) => {
-        res.json(responseJSON);
+        res.json(response);
     })
     .catch((err) => res.error(err));
 });
