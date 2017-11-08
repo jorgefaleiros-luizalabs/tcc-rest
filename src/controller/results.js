@@ -43,8 +43,10 @@ function reportDiagnostic(payload){
     if (report.age <= 15){
         for( var key in report) {
             if (key !== 'id' && key !== 'age'){
-                if (report[key] === 1 && report[key] === 'vomit') {    
-                    rawPoints = rawPoints + (parameters[key] + (parameters[key] * symptomBonus));
+                let additional = 0;
+                if (report[key] === 1 && key === 'vomit') {
+                    additional = parameters[key] + (parameters[key] * symptomBonus);    
+                    rawPoints = rawPoints + additional;
                 } else if (report[key] === 1) {
                     rawPoints = rawPoints + parameters[key]
                 }
@@ -54,8 +56,10 @@ function reportDiagnostic(payload){
     if (report.age > 15){
         for (var key in report) {
             if (key !== 'id' && key !== 'age') {
-                if(report[key] === 1 && (report[key] === 'musclePain' || report[key] === 'eyePain' || report[key] === 'nausea' || report[key] === 'jointPain')){
-                    rawPoints = rawPoints + (parameters[key] + (parameters[key] * symptomBonus));
+                let additional = 0;
+                if(report[key] === 1 && (key === 'musclePain' || key === 'eyePain' || key === 'nausea' || key === 'jointPain')){
+                    additional =  parameters[key] + (parameters[key] * symptomBonus);
+                    rawPoints = rawPoints + additional;
                 } else if (report[key] === 1){
                     rawPoints = rawPoints + parameters[key];
                 }
@@ -68,10 +72,20 @@ function reportDiagnostic(payload){
         }
     }
     let resultPercentage = rawPoints / maxPoints;
-
+    return resultPercentage;
 }
 exports.analisys = function(_reportId) {
-    var payload = getReportAndParams(_reportId).then((result) => {
-        var diagnostic = reportDiagnostic(result);
-    })
+    return new Promise((resolve, reject) => {
+        var payload = getReportAndParams(_reportId)
+        .then((result) => {
+            var diagnostic = reportDiagnostic(result);
+            let body = {
+                result: diagnostic
+            };
+            resolve(body);
+        })
+        .catch((err) => {
+            reject(err);
+        });
+    });
 }
